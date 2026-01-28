@@ -52,6 +52,24 @@ if (msg.content.startsWith('!avatar')) {
 
   msg.reply({ embeds: [embed] });
 }
+  if (msg.content === '!serverinfo') {
+  const { guild } = msg;
+  const { name, memberCount, ownerId, createdAt } = guild;
+  const icon = guild.iconURL();
+
+  const embed = new EmbedBuilder()
+    .setColor('#FF00FF')
+    .setTitle(`Informações do Servidor: ${name}`)
+    .setThumbnail(icon)
+    .addFields(
+      { name: '👥 Membros', value: `${memberCount}`, inline: true },
+      { name: '👑 Dono', value: `<@${ownerId}>`, inline: true },
+      { name: '📅 Criado em', value: `${createdAt.toLocaleDateString('pt-BR')}`, inline: true },
+      { name: '📍 Região/ID', value: `${guild.id}`, inline: false }
+    );
+
+  msg.reply({ embeds: [embed] });
+  }
   
 });
 
