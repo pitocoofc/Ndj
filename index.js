@@ -1,7 +1,7 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const express = require('express');
 
-// --- MINI SERVIDOR WEB ---
+// --- MINI SERVIDOR WEB PARA O RENDER ---
 const app = express();
 app.get('/', (req, res) => res.send('Bot Online! 🤖'));
 app.listen(process.env.PORT || 3000); 
@@ -19,55 +19,60 @@ client.once('ready', () => {
   console.log(`Logado como ${client.user.tag}!`);
 });
 
-client.on('messageCreate', msg => {
+client.on('messageCreate', async msg => {
   if (msg.author.bot) return;
 
+  // Comando: !ping
   if (msg.content.toLowerCase() === '!ping') {
-    msg.reply('🏓 Pong!');
+    return msg.reply('🏓 Pong!');
   }
+
+  // Comando: !dado
   if (msg.content.startsWith('!dado')) {
-  const resultado = Math.floor(Math.random() * 6) + 1;
-  msg.reply(`🎲 O dado caiu em: **${resultado}**`);
+    const resultado = Math.floor(Math.random() * 6) + 1;
+    return msg.reply(`🎲 O dado caiu em: **${resultado}**`);
   }
+
+  // Comando: !limpar
   if (msg.content.startsWith('!limpar')) {
-  const amount = parseInt(msg.content.split(' ')[1]); // Pega o número após o comando
-  if (isNaN(amount) || amount <= 0) return msg.reply('Diga quantas mensagens apagar (1-100)!');
-  
-  msg.channel.bulkDelete(amount + 1, true);
-  msg.channel.send(`🧹 Limpei **${amount}** mensagens para você!`).then(m => setTimeout(() => m.delete(), 3000));
+    const amount = parseInt(msg.content.split(' ')[1]);
+    if (isNaN(amount) || amount <= 0 || amount > 100) {
+      return msg.reply('Diga quantas mensagens apagar (1-100)!');
+    }
+    
+    await msg.channel.bulkDelete(amount + 1, true);
+    return msg.channel.send(`🧹 Limpei **${amount}** mensagens!`)
+      .then(m => setTimeout(() => m.delete(), 3000));
   }
-  const { EmbedBuilder } = require('discord.js'); // Adicione EmbedBuilder no topo com o Client
 
-// ... (dentro do messageCreate)
+  // Comando: !avatar
+  if (msg.content.startsWith('!avatar')) {
+    const usuario = msg.mentions.users.first() || msg.author;
+    const embed = new EmbedBuilder()
+      .setColor('#5865F2')
+      .setTitle(`🖼️ Avatar de ${usuario.username}`)
+      .setImage(usuario.displayAvatarURL({ dynamic: true, size: 1024 }))
+      .setFooter({ text: `Requisitado por ${msg.author.tag}` });
 
-if (msg.content.startsWith('!avatar')) {
-  // Pega o primeiro usuário mencionado ou quem enviou a mensagem
-  const usuario = msg.mentions.users.first() || msg.author;
+    return msg.reply({ embeds: [embed] });
+  }
 
-  const embed = new EmbedBuilder()
-    .setColor('#5865F2') // Cor Blurple do Discord
-    .setTitle(`🖼️ Avatar de ${usuario.username}`)
-    .setImage(usuario.displayAvatarURL({ dynamic: true, size: 1024 }))
-    .setFooter({ text: `Requisitado por ${msg.author.tag}` });
-
-  msg.reply({ embeds: [embed] });
-}
+  // Comando: !serverinfo
   if (msg.content === '!serverinfo') {
-  const { guild } = msg;
-  const { name, memberCount, ownerId, createdAt } = guild;
-  const icon = guild.iconURL();
-
-  const embed = new EmbedBuilder()
-    .setColor('#FF00FF')
-    .setTitle(`Informações do Servidor: ${name}`)
-    .setThumbnail(icon)
-    .addFields(
-      { name: '👥 Membros', value: `${memberCount}`, inline: true },
-      { name: '👑 Dono', value: `<@${ownerId}>`, inline: true },
-      { name: '📅 Criado em', value: `${createdAt.toLocaleDateString('pt-BR')}`, inline: true },
-      { name: '📍 Região/ID', value: `${guild.id}`, inline: false }
-    );
-  
+    const { guild } = msg;
+    const embed = new EmbedBuilder()
+      .setColor('#FF00FF')
+      .setTitle(`Informações do Servidor: ${guild.name}`)
+      .setThumbnail(guild.iconURL())
+      .addFields(
+        { name: '👥 Membros', value: `${guild.memberCount}`, inline: true },
+        { name: '👑 Dono', value: `<@${guild.ownerId}>`, inline: true },
+        { name: '📅 Criado em', value: `${guild.createdAt.toLocaleDateString('pt-BR')}`, inline: true },
+        { name: '📍 ID do Servidor', value: `${guild.id}`, inline: false }
+      );
+    
+    return msg.reply({ embeds: [embed] });
+  }
 });
 
 client.login(process.env.DISCORD_TOKEN);
