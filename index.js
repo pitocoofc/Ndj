@@ -36,6 +36,22 @@ client.on('messageCreate', msg => {
   msg.channel.bulkDelete(amount + 1, true);
   msg.channel.send(`🧹 Limpei **${amount}** mensagens para você!`).then(m => setTimeout(() => m.delete(), 3000));
   }
+  const { EmbedBuilder } = require('discord.js'); // Adicione EmbedBuilder no topo com o Client
+
+// ... (dentro do messageCreate)
+
+if (msg.content.startsWith('!avatar')) {
+  // Pega o primeiro usuário mencionado ou quem enviou a mensagem
+  const usuario = msg.mentions.users.first() || msg.author;
+
+  const embed = new EmbedBuilder()
+    .setColor('#5865F2') // Cor Blurple do Discord
+    .setTitle(`🖼️ Avatar de ${usuario.username}`)
+    .setImage(usuario.displayAvatarURL({ dynamic: true, size: 1024 }))
+    .setFooter({ text: `Requisitado por ${msg.author.tag}` });
+
+  msg.reply({ embeds: [embed] });
+}
   
 });
 
