@@ -70,6 +70,22 @@ if (msg.content.startsWith('!avatar')) {
 
   msg.reply({ embeds: [embed] });
   }
+  // Exemplo de comando !t [texto]
+if (msg.content.startsWith('!t ')) {
+    const textoParaTraduzir = msg.content.slice(3);
+
+    // O Bot chama a SUA API
+    const response = await fetch('https://seu-sistema.onrender.com/api/traduzir', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texto: textoParaTraduzir })
+    });
+
+    const data = await response.json();
+    
+    // Entrega para o usuário
+    msg.reply(`**Tradução (${data.tipo}):** ${data.traducao}`);
+             }
   
 });
 
