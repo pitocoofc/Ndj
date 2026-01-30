@@ -1,5 +1,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const express = require('express');
+const { OpenRouter } = require("@openrouter/sdk");
+const openrouter = new OpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 // --- MINI SERVIDOR WEB PARA O RENDER ---
 const app = express();
