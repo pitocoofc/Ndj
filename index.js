@@ -73,6 +73,48 @@ client.on('messageCreate', async msg => {
     
     return msg.reply({ embeds: [embed] });
   }
+    // --- COMANDO DE IA (Responde quando mencionado) ---
+  if (msg.mentions.has(client.user)) {
+    // 1. Limpa a mensagem: remove a menção do bot para enviar só o texto para a IA
+    const pergunta = msg.content.replace(/<@!?[0-9]+>/g, '').trim();
+
+    // Se o usuário só marcou o bot sem escrever nada
+    if (!pergunta) {
+      return msg.reply("Oi! Eu sou um bot com IA. Pode me perguntar qualquer coisa marcando meu nome! 🤖");
+    }
+
+    try {
+      // 2. Mostra "Digitando..." no Discord para dar feedback ao usuário
+      await msg.channel.sendTyping();
+
+      // 3. Chama a OpenRouter
+      const response = await openrouter.chat.send({
+        model: "tngtech/deepseek-r1t2-chimera:free",
+        messages: [
+          { 
+            role: "system", 
+            content: "Você é um assistente de Discord amigável, zueiro e útil. Responda em português de forma concisa." 
+          },
+          { role: "user", content: pergunta }
+        ],
+      });
+
+      const respostaIA = response.choices[0]?.message?.content || "Eita, o cérebro falhou aqui. Tenta de novo?";
+
+      // 4. Verifica se a resposta cabe no limite de 2000 caracteres do Discord
+      if (respostaIA.length > 2000) {
+        const parte = respostaIA.substring(0, 1900);
+        return msg.reply(`${parte}\n\n*(Resposta cortada por ser muito longa)*`);
+      }
+
+      return msg.reply(respostaIA);
+
+    } catch (error) {
+      console.error("Erro na OpenRouter:", error);
+      return msg.reply("❌ Erro ao conectar com a IA. Verifique se a API Key está configurada no Render.");
+    }
+  }
+  
 });
 
 client.login(process.env.DISCORD_TOKEN);
