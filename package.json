@@ -1,13 +1,13 @@
 {
   "name": "meu-bot-discord",
   "version": "1.0.0",
-  "description": "Bot de utilidades com IA",
+  "description": "Bot de utilidades com IA - Exército Brasileiro RP",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "@openrouter/sdk": "latest",
+    "@google/generative-ai": "^0.21.0",
     "discord.js": "^14.13.0",
     "express": "^4.18.2"
   }
