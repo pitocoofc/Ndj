@@ -78,48 +78,48 @@ client.on('messageCreate', async msg => {
     
     return msg.reply({ embeds: [embed] });
   }
-    // --- COMANDO DE IA (Responde quando mencionado) ---
+  // --- COMANDO DE IA (GEMINI GOOGLE OFICIAL) ---
   if (msg.mentions.has(client.user)) {
-    // 1. Limpa a mensagem: remove a menção do bot para enviar só o texto para a IA
     const pergunta = msg.content.replace(/<@!?[0-9]+>/g, '').trim();
 
-    // Se o usuário só marcou o bot sem escrever nada
     if (!pergunta) {
-      return msg.reply("Oi! Eu sou um bot com IA. Pode me perguntar qualquer coisa marcando meu nome! 🤖");
+      return msg.reply("Sentido, recruta! Deseja alguma instrução? Marque-me e faça sua pergunta. 🪖");
     }
 
     try {
-      // 2. Mostra "Digitando..." no Discord para dar feedback ao usuário
       await msg.channel.sendTyping();
 
-      // 3. Chama a OpenRouter
-      const response = await openrouter.chat.send({
-        model: "tngtech/deepseek-r1t2-chimera:free",
-        messages: [
-          { 
-            role: "system", 
-            content: "Você é um assistente de Discord amigável, zueiro e útil. Responda em português de forma concisa." 
+      // Configurando a Persona Militar e a segurança para o público de 6-15 anos
+      const chat = modelIA.startChat({
+        history: [
+          {
+            role: "user",
+            parts: [{ text: "Você é um Instrutor do Exército Brasileiro no Roblox. Responda de forma disciplinada, curta e prestativa. Proibido usar palavrões ou falar de temas impróprios para menores." }],
           },
-          { role: "user", content: pergunta }
+          {
+            role: "model",
+            parts: [{ text: "Entendido, recruta! Aguardando ordens para instrução." }],
+          },
         ],
       });
 
-      const respostaIA = response.choices[0]?.message?.content || "Eita, o cérebro falhou aqui. Tenta de novo?";
+      const result = await chat.sendMessage(pergunta);
+      const respostaIA = result.response.text();
 
-      // 4. Verifica se a resposta cabe no limite de 2000 caracteres do Discord
+      // Verifica limite de caracteres do Discord
       if (respostaIA.length > 2000) {
-        const parte = respostaIA.substring(0, 1900);
-        return msg.reply(`${parte}\n\n*(Resposta cortada por ser muito longa)*`);
+        return msg.reply(respostaIA.substring(0, 1900) + "\n\n*(Relatório cortado pelo comando)*");
       }
 
       return msg.reply(respostaIA);
 
     } catch (error) {
-      console.error("Erro na OpenRouter:", error);
-      return msg.reply("❌ Erro ao conectar com a IA. Verifique se a API Key está configurada no Render.");
+      console.error("Erro no Gemini:", error);
+      // Resposta temática para erros de filtro de segurança ou conexão
+      return msg.reply("❌ **Erro de Comunicação:** A frequência de rádio foi interrompida ou a mensagem contém termos proibidos pelo alto comando.");
     }
   }
-  
+
 });
 
 client.login(process.env.DISCORD_TOKEN);
