@@ -1,7 +1,10 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const express = require('express');
-const { OpenRouter } = require("@openrouter/sdk");
-const openrouter = new OpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
+// --- CONFIGURAÇÃO DA IA (GOOGLE OFICIAL) ---
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const modelIA = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-flash", // Modelo gratuito e rápido
+});
 
 // --- MINI SERVIDOR WEB PARA O RENDER ---
 const app = express();
